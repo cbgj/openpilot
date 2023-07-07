@@ -1,6 +1,6 @@
 import os
 
-Import('env', 'arch', 'cereal', 'messaging', 'common', 'gpucommon', 'visionipc', 'transformations')
+Import('env', 'envCython', 'arch', 'cereal', 'messaging', 'common', 'gpucommon', 'visionipc', 'transformations')
 lenv = env.Clone()
 
 libs = [cereal, messaging, common, visionipc, gpucommon,
@@ -27,6 +27,12 @@ thneed_src = [
   "thneed/thneed_qcom2.cc",
   "thneed/serialize.cc",
   "runners/thneedmodel.cc",
+]
+
+runmodel_src = [
+  'runners/snpemodel.cc',
+  'runners/onnxmodel.cc',
+  'runners/thneedmodel.cc',
 ]
 
 use_thneed = not GetOption('no_thneed')
@@ -58,6 +64,11 @@ else:
     # no SNPE on Mac
     del libs[libs.index('SNPE')]
     del common_src[common_src.index('runners/snpemodel.cc')]
+
+runmodel_objects = env.SharedObject(runmodel_src)
+runmodel_lib = env.Library('runmodel', runmodel_objects)
+
+envCython.Program('runners/runmodel_pyx.so', 'runners/runmodel_pyx.pyx', LIBS=envCython["LIBS"]+[runmodel_lib, common])
 
 common_model = lenv.Object(common_src)
 
