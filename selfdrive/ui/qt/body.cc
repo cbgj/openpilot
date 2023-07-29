@@ -12,7 +12,7 @@
 RecordButton::RecordButton(QWidget *parent) : QPushButton(parent) {
   setCheckable(true);
   setChecked(false);
-  setFixedSize(148, 148);
+  setFixedSize(500, 500);
 
   QObject::connect(this, &QPushButton::toggled, [=]() {
     setEnabled(false);
@@ -38,15 +38,15 @@ void RecordButton::paintEvent(QPaintEvent *event) {
 
   p.setPen(Qt::NoPen);
   p.setBrush(bg);
-  p.drawEllipse(center, 74, 74);
+  p.drawEllipse(center, 216, 216);
 
   p.setPen(QPen(accent, 6));
   p.setBrush(Qt::NoBrush);
-  p.drawEllipse(center, 42, 42);
+  p.drawEllipse(center, 126, 126);
 
   p.setPen(Qt::NoPen);
   p.setBrush(accent);
-  p.drawEllipse(center, 22, 22);
+  p.drawEllipse(center, 66, 66);
 }
 
 
@@ -70,10 +70,11 @@ BodyWindow::BodyWindow(QWidget *parent) : fuel_filter(1.0, 5., 1. / UI_FREQ), QW
 
   // record button
   btn = new RecordButton(this);
-  vlayout->addWidget(btn, 0, Qt::AlignBottom | Qt::AlignRight);
+  vlayout->addWidget(btn, 0, Qt::AlignBottom | Qt::AlignCenter);
   QObject::connect(btn, &QPushButton::clicked, [=](bool checked) {
     btn->setEnabled(false);
     Params().putBool("DisableLogging", !checked);
+    Params().putBool("TakePic", checked);
     last_button = nanos_since_boot();
   });
   w->raise();
@@ -123,7 +124,7 @@ void BodyWindow::paintEvent(QPaintEvent *event) {
 }
 
 void BodyWindow::offroadTransition(bool offroad) {
-  btn->setChecked(true);
+  btn->setChecked(false);
   btn->setEnabled(true);
   fuel_filter.reset(1.0);
 }
@@ -131,6 +132,10 @@ void BodyWindow::offroadTransition(bool offroad) {
 void BodyWindow::updateState(const UIState &s) {
   if (!isVisible()) {
     return;
+  }
+
+  if (!Params().getBool("TakePic")){
+    btn->setChecked(false);
   }
 
   const SubMaster &sm = *(s.sm);
@@ -152,7 +157,7 @@ void BodyWindow::updateState(const UIState &s) {
     for (auto proc : sm["managerState"].getManagerState().getProcesses()) {
       if (proc.getName() == "loggerd") {
         btn->setEnabled(true);
-        btn->setChecked(proc.getRunning());
+        // btn->setChecked(proc.getRunning());
       }
     }
   }
