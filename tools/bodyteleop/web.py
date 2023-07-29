@@ -24,7 +24,7 @@ pcs = set()
 pm = messaging.PubMaster(['testJoystick'])
 sm = messaging.SubMaster(['carState', 'logMessage'])
 FIND_OBJ = 'person'
-BODYDIR = "/tools/joystick"
+BODYDIR = "/tools/bodyteleop"
 
 async def index(request):
   content = open(BASEDIR + BODYDIR +"/static/index.html", "r").read()
