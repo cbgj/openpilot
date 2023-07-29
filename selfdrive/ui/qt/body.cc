@@ -67,6 +67,8 @@ BodyWindow::BodyWindow(QWidget *parent) : fuel_filter(1.0, 5., 1. / UI_FREQ), QW
   awake->setCacheMode(QMovie::CacheAll);
   sleep = new QMovie("../assets/body/sleep.gif");
   sleep->setCacheMode(QMovie::CacheAll);
+  countdown = new QMovie("../assets/body/count_down.gif");
+  countdown->setCacheMode(QMovie::CacheAll);
 
   // record button
   btn = new RecordButton(this);
@@ -135,15 +137,25 @@ void BodyWindow::updateState(const UIState &s) {
 
   const SubMaster &sm = *(s.sm);
   auto cs = sm["carState"].getCarState();
+  auto bs = sm["bodyStatus"].getBodyStatus();
 
   charging = cs.getCharging();
   fuel_filter.update(cs.getFuelGauge());
 
   // TODO: use carState.standstill when that's fixed
   const bool standstill = std::abs(cs.getVEgo()) < 0.01;
-  QMovie *m = standstill ? sleep : awake;
+  QMovie *m = sleep;
+
+  if (bs == 1){
+    m = countdown;
+  }
+  else{
+    m = standstill ? sleep : awake;
+  }
+
   if (m != face->movie()) {
     face->setMovie(m);
+    face->movie()->stop();
     face->movie()->start();
   }
 

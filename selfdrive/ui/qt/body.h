@@ -28,7 +28,7 @@ private:
   uint64_t last_button = 0;
   FirstOrderFilter fuel_filter;
   QLabel *face;
-  QMovie *awake, *sleep;
+  QMovie *awake, *sleep, *countdown;
   RecordButton *btn;
   void paintEvent(QPaintEvent*) override;
 
